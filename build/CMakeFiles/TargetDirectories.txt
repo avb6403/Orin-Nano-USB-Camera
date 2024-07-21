@@ -1,0 +1,7 @@
+/home/tohab0g/Projects/Orin-Nano-USB-Cam/build/CMakeFiles/main.dir
+/home/tohab0g/Projects/Orin-Nano-USB-Cam/build/CMakeFiles/edit_cache.dir
+/home/tohab0g/Projects/Orin-Nano-USB-Cam/build/CMakeFiles/rebuild_cache.dir
+/home/tohab0g/Projects/Orin-Nano-USB-Cam/build/CMakeFiles/list_install_components.dir
+/home/tohab0g/Projects/Orin-Nano-USB-Cam/build/CMakeFiles/install.dir
+/home/tohab0g/Projects/Orin-Nano-USB-Cam/build/CMakeFiles/install/local.dir
+/home/tohab0g/Projects/Orin-Nano-USB-Cam/build/CMakeFiles/install/strip.dir
