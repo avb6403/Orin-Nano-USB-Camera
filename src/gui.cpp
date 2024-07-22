@@ -1,39 +1,67 @@
 #include "gui.hpp"
+#include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
-GUI::GUI() : defaultColorScheme(true) {}
 
-GUI::~GUI() {}
 
-void GUI::createWindow(const std::string& windowName, int width, int height) {
-    this->windowName = windowName;
-    cv::namedWindow(windowName, cv::WINDOW_NORMAL);  // Create a resizable window
-    cv::resizeWindow(windowName, width, height);     // Initial size
+void drawGUI(cv::Mat& frame) {
+    // Add GUI elements here
+    // Example: Draw a rectangle
+    cv::rectangle(frame, cv::Point(50, 50), cv::Point(200, 200), cv::Scalar(0, 255, 0), 2);
+
+    // Example: Draw text
+    cv::putText(frame, "Face Detection App", cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(255, 0, 0), 2);
+
+    // Example: Change color scheme
+    // cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY); // Convert to grayscale
 }
 
-void GUI::showImage(const cv::Mat& image) {
-    currentImage = image.clone();  // Store a copy of the image
-    applyColorScheme(currentImage);  // Apply color scheme
-    cv::imshow(windowName, currentImage);
-}
+void faceDetect(cv::VideoCapture& cap) {
+    cv::CascadeClassifier faceCascade;
+    faceCascade.load("/usr/share/opencv4/haarcascades/haarcascade_frontalface_default.xml");
 
-void GUI::processEvents() {
-    cv::waitKey(1);  // Allow time for GUI events
-}
+    cv::CascadeClassifier eyeCascade;
+    eyeCascade.load("/usr/share/opencv4/haarcascades/haarcascade_eye.xml");
 
-void GUI::changeColorScheme(bool useDefaultColorScheme) {
-    defaultColorScheme = useDefaultColorScheme;
-}
+    cv::Mat frame;
+    cv::namedWindow("Face Detect", cv::WINDOW_AUTOSIZE);
 
-void GUI::resizeWindow(int width, int height) {
-    cv::resizeWindow(windowName, width, height);
-}
+    while (true) {
+        cap >> frame;
 
-void GUI::applyColorScheme(cv::Mat& image) {
-    // Example: Implementing a color inversion scheme
-    if (!defaultColorScheme) {
-        cv::bitwise_not(image, image);
+        if (frame.empty()) {
+            break;
+        }
+
+        cv::Mat frameGray;
+        cv::cvtColor(frame, frameGray, cv::COLOR_BGR2GRAY);
+
+        std::vector<cv::Rect> faces;
+        faceCascade.detectMultiScale(frameGray, faces, 1.3, 5);
+
+        for (const auto& face : faces) {
+            cv::rectangle(frame, face, cv::Scalar(255, 0, 0), 2);
+
+            cv::Mat faceROI = frameGray(face);
+            std::vector<cv::Rect> eyes;
+            eyeCascade.detectMultiScale(faceROI, eyes);
+
+            for (const auto& eye : eyes) {
+                cv::Point eyeCenter(face.x + eye.x + eye.width / 2, face.y + eye.y + eye.height / 2);
+                int radius = cvRound((eye.width + eye.height) * 0.25);
+                cv::circle(frame, eyeCenter, radius, cv::Scalar(0, 255, 0), 2);
+            }
+        }
+
+        drawGUI(frame);
+
+        cv::imshow("Face Detect", frame);
+        int key = cv::waitKey(30);
+
+        if (key == 27 || key == 'q') {
+            break;
+        }
     }
-    // Add more custom color schemes as needed
 }
+

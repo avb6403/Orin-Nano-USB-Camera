@@ -19,7 +19,8 @@ private:
     bool initMmap();
     void uninitDevice();
     void errnoExit(const char *s);
-    void processImage(const void *p, int size);
+
+    void processImage(void *data, size_t length);
 
 private:
     int fd;

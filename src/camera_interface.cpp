@@ -9,13 +9,9 @@
 #include <sys/mman.h>
 #include <linux/videodev2.h>
 #include <opencv2/opencv.hpp>
+#include <opencv2/imgcodecs.hpp> 
 
 const char* CameraInterface::cameraDevice = "/dev/video0";
-
-struct buffer {
-    void *start;
-    size_t length;
-};
 
 CameraInterface::CameraInterface() : fd(-1), buffers(nullptr), nBuffers(0) {}
 
@@ -180,10 +176,19 @@ void CameraInterface::errnoExit(const char *s) {
     exit(EXIT_FAILURE);
 }
 
-void CameraInterface::processImage(const void *p, int size) {
-    cv::Mat frame(cv::Size(captureWidth, captureHeight), CV_8UC2, (void*)p);
-    cv::Mat converted(cv::Size(captureWidth, captureHeight), CV_8UC3);
-    cv::cvtColor(frame, converted, cv::COLOR_YUV2BGR_YUYV);
-    cv::imshow("Camera", converted);
-    cv::waitKey(1);
+void CameraInterface::processImage(void *data, size_t length) {
+    // Convert raw data to cv::Mat
+    cv::Mat rawData(1, length, CV_8UC1, data);
+
+    // Decode the image from raw data
+    cv::Mat frame = cv::imdecode(rawData, cv::IMREAD_COLOR);
+    if (frame.empty()) {
+        fprintf(stderr, "Failed to decode frame\n");
+        return;
+    }
+
+    // Perform image processing here
+    cv::resize(frame, frame, cv::Size(), 0.5, 0.5); // Resize example
+
+    // Display or further process 'frame' as needed
 }

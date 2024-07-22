@@ -12,6 +12,7 @@ int main() {
         return 1;
     }
 
+    // Main loop for capturing and processing frames
     camera.startCapturing();
     camera.mainLoop();
     camera.stopCapturing();
